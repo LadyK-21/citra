@@ -7,9 +7,6 @@
 #include <mutex>
 #include <string>
 #include <fmt/format.h>
-#if defined(__ANDROID__)
-#include <ifaddrs.h>
-#endif
 #include <httplib.h>
 #include "common/common_types.h"
 #include "common/logging/log.h"
@@ -30,7 +27,7 @@ struct Client::Impl {
             jwt = jwt_cache.jwt;
         }
         // normalize host expression
-        if (this->host.back() == '/') {
+        if (!this->host.empty() && this->host.back() == '/') {
             static_cast<void>(this->host.pop_back());
         }
     }
@@ -79,7 +76,6 @@ struct Client::Impl {
             LOG_ERROR(WebService, "Invalid URL {}", host + path);
             return Common::WebResult{Common::WebResult::Code::InvalidURL, "Invalid URL"};
         }
-        LOG_ERROR(WebService, "{}", host);
 
         httplib::Headers params;
         if (!jwt.empty()) {

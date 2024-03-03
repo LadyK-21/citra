@@ -83,6 +83,10 @@
                 <item
                     android:id="@+id/menu_screen_layout_sidebyside"
                     android:title="@string/emulation_screen_layout_sidebyside" />
+
+                <item
+                    android:id="@+id/menu_screen_layout_hybrid"
+                    android:title="@string/emulation_screen_layout_hybrid" />
             </group>
         </menu>
     </item>
@@ -106,8 +110,18 @@
         android:checkable="true" />
 
     <item
+        android:id="@+id/menu_emulation_open_cheats"
+        app:showAsAction="never"
+        android:title="@string/emulation_open_cheats" />
+
+    <item
         android:id="@+id/menu_emulation_open_settings"
         app:showAsAction="never"
         android:title="@string/emulation_open_settings" />
+
+    <item
+        android:id="@+id/menu_emulation_close_game"
+        app:showAsAction="never"
+        android:title="@string/emulation_close_game" />
 
 </menu>

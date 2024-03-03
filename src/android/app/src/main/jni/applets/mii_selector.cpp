@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/string_util.h"
+#include "jni/android_common/android_common.h"
 #include "jni/applets/mii_selector.h"
 #include "jni/id_cache.h"
 
@@ -22,14 +23,13 @@ void AndroidMiiSelector::Setup(const Frontend::MiiSelectorConfig& config) {
     // Create the Java MiiSelectorConfig object
     jobject java_config = env->AllocObject(s_mii_selector_config_class);
     env->SetBooleanField(java_config,
-                         env->GetFieldID(s_mii_selector_config_class, "enable_cancel_button", "Z"),
+                         env->GetFieldID(s_mii_selector_config_class, "enableCancelButton", "Z"),
                          static_cast<jboolean>(config.enable_cancel_button));
     env->SetObjectField(java_config,
                         env->GetFieldID(s_mii_selector_config_class, "title", "Ljava/lang/String;"),
-                        env->NewStringUTF(config.title.c_str()));
+                        ToJString(env, config.title));
     env->SetLongField(
-        java_config,
-        env->GetFieldID(s_mii_selector_config_class, "initially_selected_mii_index", "J"),
+        java_config, env->GetFieldID(s_mii_selector_config_class, "initiallySelectedMiiIndex", "J"),
         static_cast<jlong>(config.initially_selected_mii_index));
 
     // List mii names
@@ -39,20 +39,20 @@ void AndroidMiiSelector::Setup(const Frontend::MiiSelectorConfig& config) {
         env->NewObjectArray(static_cast<jsize>(miis.size()), string_class, nullptr);
     for (std::size_t i = 0; i < miis.size(); ++i) {
         const auto name = Common::UTF16BufferToUTF8(miis[i].mii_name);
-        env->SetObjectArrayElement(array, static_cast<jsize>(i), env->NewStringUTF(name.c_str()));
+        env->SetObjectArrayElement(array, static_cast<jsize>(i), ToJString(env, name));
     }
     env->SetObjectField(
         java_config,
-        env->GetFieldID(s_mii_selector_config_class, "mii_names", "[Ljava/lang/String;"), array);
+        env->GetFieldID(s_mii_selector_config_class, "miiNames", "[Ljava/lang/String;"), array);
 
     // Invoke backend Execute method
     jobject data =
         env->CallStaticObjectMethod(s_mii_selector_class, s_mii_selector_execute, java_config);
 
     const u32 return_code = static_cast<u32>(
-        env->GetLongField(data, env->GetFieldID(s_mii_selector_data_class, "return_code", "J")));
+        env->GetLongField(data, env->GetFieldID(s_mii_selector_data_class, "returnCode", "J")));
     if (return_code == 1) {
-        Finalize(return_code, HLE::Applets::MiiData{});
+        Finalize(return_code, Mii::MiiData{});
         return;
     }
 
